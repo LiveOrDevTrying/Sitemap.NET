@@ -13,7 +13,8 @@
     <RepositoryUrl>https://github.com/liveorDevTrying/sitemaps.net</RepositoryUrl>
     <PackageProjectUrl>https://github.com/liveorDevTrying/sitemaps.net</PackageProjectUrl>
     <RepositoryType>Public Github</RepositoryType>
-    <ApplicationIcon>Logo.ico</ApplicationIcon>
+    <ApplicationIcon></ApplicationIcon>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
