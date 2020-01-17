@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>SiteMaps.NET</title>
+    <authors>Rob Engel - LiveOrDevTrying</authors>
+    <owners>Rob Engel - LiveOrDevTrying - Pixel Horror Studios</owners>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/liveorDevTrying/sitemaps.net</projectUrl>
+    <icon>Logo.png</icon>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A simple middleware that creates a Sitemap.xml and or Robots.txt for your Search Engine Optimized Asp.NET webapp. Simple add app.UseSitemap() or app.UseRobots(), or both. Sitemap asks for a parameter if you would like to parse the controllers - you can add the [NoSiteMap] attribute to any class or method you would not like included in the sitemap.xml. You can override SiteMapsMiddleware and override the protected methods GetSiteMapNodes and GetDetailRecordNodes to provide your own sitemap nodes and provide detail information for a dynamic sitemap.xml of items, e.g. a link for each product in the products database. The Robots middleware will allow you to add any number of RobotRules for defining your User-Agent and Disallowed routes.</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2020</copyright>
+    <tags>sitemap sitemap.xml sitemaps robots robot robots.txt SEO search engine optimization
+      asp.net core 2.0 middleware pixel horror studios pixelhorrorstudios phs</tags>
+    <dependencies>
+      <group targetFramework="netcoreapp2.0">
+        <dependency id="Microsoft.NETCore.App" version="[2.0,3)" />
+        <dependency id="Microsoft.AspNetCore.Http.Abstractions" version="[2.2,3)" />
+        <dependency id="Microsoft.AspNetCore.Mvc.Abstractions" version="[2.2,3)" />
+        <dependency id="Microsoft.AspNetCore.Mvc.ViewFeatures" version="[2.2,3)" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="Logo.png" target="" />
+  </files>
+</package>

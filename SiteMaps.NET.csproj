@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <Authors>Rob Engel - LiveOrDevTrying</Authors>
+    <Company>Rob Engel - LiveOrDevTrying - Pixel Horror Studios</Company>
+    <Description>A simple middleware that creates a Sitemap.xml and or Robots.txt for your Search Engine Optimized Asp.NET webapp. Simple add app.UseSitemap() or app.UseRobots(), or both. Sitemap asks for a parameter if you would like to parse the controllers - you can add the [NoSiteMap] attribute to any class or method you would not like included in the sitemap.xml. You can override SiteMapsMiddleware and override the protected methods GetSiteMapNodes and GetDetailRecordNodes to provide your own sitemap nodes and provide detail information for a dynamic sitemap.xml of items, e.g. a link for each product in the products database. The Robots middleware will allow you to add any number of RobotRules for defining your User-Agent and Disallowed routes.</Description>
+    <Copyright>Copyright 2020</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>icon.ico</PackageIcon>
+    <PackageIconUrl />
+    <PackageTags>sitemap sitemap.xml sitemaps robots robot robots.txt SEO search engine optimization</PackageTags>
+    <RepositoryUrl>https://github.com/liveorDevTrying/sitemaps.net</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/liveorDevTrying/sitemaps.net</PackageProjectUrl>
+    <RepositoryType>Public Github</RepositoryType>
+    <ApplicationIcon>Logo.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Logo.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Logo.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
