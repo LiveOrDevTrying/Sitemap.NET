@@ -71,8 +71,8 @@ namespace SiteMaps.NET
                 if (_parseControllers)
                 {
                     var controllers = Assembly.GetEntryAssembly().GetTypes()
-                        .Where(type => typeof(Controller).IsAssignableFrom(type)
-                        || type.Name.EndsWith("controller")).ToList();
+                        .Where(type => typeof(ControllerBase).IsAssignableFrom(type) || type.Name.EndsWith("controller"))
+                        .ToList();
 
                     foreach (var controller in controllers)
                     {
