@@ -6,19 +6,19 @@ namespace SiteMaps.NET
     public static class BuilderExtensions
     {
         public static IApplicationBuilder UseSitemap(this IApplicationBuilder app,
-            bool parseControllers, bool isSSL)
+            bool parseControllers, bool useSSL)
         {
-            return app.UseMiddleware<SiteMapsMiddleware>(parseControllers, isSSL);
+            return app.UseMiddleware<SiteMapsMiddleware>(parseControllers, useSSL);
         }
 
-        public static IApplicationBuilder UseRobots(this IApplicationBuilder app)
+        public static IApplicationBuilder UseRobots(this IApplicationBuilder app, bool useSSL)
         {
-            return app.UseMiddleware<RobotsMiddleware>();
+            return app.UseMiddleware<RobotsMiddleware>(useSSL);
         }
 
-        public static IApplicationBuilder UseRobots(this IApplicationBuilder app, RobotRule[] robotRules)
+        public static IApplicationBuilder UseRobots(this IApplicationBuilder app, bool useSSL, RobotRule[] robotRules)
         {
-            return app.UseMiddleware<RobotsMiddleware>(robotRules);
+            return app.UseMiddleware<RobotsMiddleware>(robotRules, useSSL);
         }
     }
 }

@@ -11,16 +11,19 @@ namespace SiteMaps.NET
     {
         private readonly RequestDelegate _next;
         private readonly RobotRule[] _robotRules;
+        private readonly bool _useSSL;
 
-        public RobotsMiddleware(RequestDelegate next)
+        public RobotsMiddleware(RequestDelegate next, bool useSSL)
         {
             _next = next;
+            _useSSL = useSSL;
         }
 
-        public RobotsMiddleware(RequestDelegate next, RobotRule[] robotRules)
+        public RobotsMiddleware(RequestDelegate next, RobotRule[] robotRules, bool useSSL)
         {
             _next = next;
             _robotRules = robotRules;
+            _useSSL = useSSL;
         }
 
         public virtual async Task Invoke(HttpContext context)
@@ -31,7 +34,7 @@ namespace SiteMaps.NET
                 context.Response.StatusCode = 200;
                 context.Response.ContentType = "text/html";
 
-                var baseUrl = string.Format("{0}://{1}{2}", context.Request.Scheme, context.Request.Host, context.Request.PathBase);
+                var baseUrl = string.Format("{0}://{1}{2}", _useSSL ? "https" : "http", context.Request.Host, context.Request.PathBase);
 
                 var sb = new StringBuilder();
 
