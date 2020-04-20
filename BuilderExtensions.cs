@@ -6,9 +6,9 @@ namespace SiteMaps.NET
     public static class BuilderExtensions
     {
         public static IApplicationBuilder UseSitemap(this IApplicationBuilder app,
-            bool parseControllers)
+            bool parseControllers, bool isSSL)
         {
-            return app.UseMiddleware<SiteMapsMiddleware>(parseControllers);
+            return app.UseMiddleware<SiteMapsMiddleware>(parseControllers, isSSL);
         }
 
         public static IApplicationBuilder UseRobots(this IApplicationBuilder app)

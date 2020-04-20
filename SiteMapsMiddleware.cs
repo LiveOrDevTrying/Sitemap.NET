@@ -17,11 +17,13 @@ namespace SiteMaps.NET
     {
         private readonly RequestDelegate _next;
         private readonly bool _parseControllers;
+        private readonly bool _isSSL;
 
-        public SiteMapsMiddleware(RequestDelegate next, bool parseControllers)
+        public SiteMapsMiddleware(RequestDelegate next, bool parseControllers, bool isSSL)
         {
             _next = next;
             _parseControllers = parseControllers;
+            _isSSL = isSSL;
         }
 
         public virtual async Task Invoke(HttpContext context)
@@ -32,7 +34,7 @@ namespace SiteMaps.NET
                 context.Response.StatusCode = 200;
                 context.Response.ContentType = "application/xml";
 
-                var baseUrl = string.Format("{0}://{1}{2}", context.Request.Scheme, context.Request.Host, context.Request.PathBase);
+                var baseUrl = string.Format("{0}://{1}{2}", _isSSL ? "https" : "http", context.Request.Host, context.Request.PathBase);
 
                 XNamespace xmlns = "http://www.sitemaps.org/schemas/sitemap/0.9";
                 var root = new XElement(xmlns + "urlset");
@@ -71,7 +73,7 @@ namespace SiteMaps.NET
                 if (_parseControllers)
                 {
                     var controllers = Assembly.GetEntryAssembly().GetTypes()
-                        .Where(type => typeof(ControllerBase).IsAssignableFrom(type) || type.Name.EndsWith("controller"))
+                        .Where(type => typeof(Controller).IsAssignableFrom(type) || type.Name.EndsWith("controller"))
                         .ToList();
 
                     foreach (var controller in controllers)
@@ -87,7 +89,6 @@ namespace SiteMaps.NET
                             foreach (var method in methods)
                             {
                                 // What happens when we have an Area?
-
                                 attribute = Attribute.GetCustomAttribute(method, typeof(NoSiteMap));
 
                                 var containsRecord = root.Elements()
