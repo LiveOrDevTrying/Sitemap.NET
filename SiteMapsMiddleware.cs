@@ -18,12 +18,18 @@ namespace SiteMaps.NET
         private readonly RequestDelegate _next;
         private readonly bool _parseControllers;
         private readonly bool _isSSL;
+        private readonly SiteMapNode[] _siteMapNodes;
+        private readonly SiteMapNodeDetail[] _detailNodes;
+        private readonly string _basePath;
 
-        public SiteMapsMiddleware(RequestDelegate next, bool parseControllers, bool isSSL)
+        public SiteMapsMiddleware(RequestDelegate next, bool parseControllers, bool isSSL, SiteMapNode[] siteMapNodes, SiteMapNodeDetail[] detailNodes, string basePath)
         {
             _next = next;
             _parseControllers = parseControllers;
             _isSSL = isSSL;
+            _siteMapNodes = siteMapNodes;
+            _detailNodes = detailNodes;
+            _basePath = basePath;
         }
 
         public virtual async Task Invoke(HttpContext context)
@@ -34,19 +40,18 @@ namespace SiteMaps.NET
                 context.Response.StatusCode = 200;
                 context.Response.ContentType = "application/xml";
 
-                var baseUrl = string.Format("{0}://{1}{2}", _isSSL ? "https" : "http", context.Request.Host, context.Request.PathBase);
-
+                var baseUrl = string.IsNullOrWhiteSpace(_basePath)
+                    ? string.Format("{0}://{1}{2}", _isSSL ? "https" : "http", context.Request.Host, context.Request.PathBase)
+                    : string.Format("{0}://{1}", _isSSL ? "https" : "http", _basePath);
                 XNamespace xmlns = "http://www.sitemaps.org/schemas/sitemap/0.9";
                 var root = new XElement(xmlns + "urlset");
                 var urlElement = new XElement(xmlns + "url",
                     new XElement(xmlns + "loc", Uri.EscapeUriString($"{baseUrl}")), new XElement(xmlns + "lastmod", DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:sszzz")));
                 root.Add(urlElement);
 
-                var siteMapNodes = await GetSiteMapNodes();
-
-                if (siteMapNodes.Length > 0)
+                if (_siteMapNodes.Length > 0)
                 {
-                    foreach (var siteMapNode in siteMapNodes)
+                    foreach (var siteMapNode in _siteMapNodes)
                     {
                         if (!root.Elements()
                                 .Nodes()
@@ -82,6 +87,22 @@ namespace SiteMaps.NET
 
                         if (attribute == null)
                         {
+                            var controllerRoute = (RouteAttribute)Attribute.GetCustomAttribute(controller, typeof(RouteAttribute));
+
+                            var routeName = string.Empty;
+
+                            if (controllerRoute != null)
+                            {
+                                if (!string.IsNullOrWhiteSpace(controllerRoute.Name))
+                                {
+                                    routeName = $"{controllerRoute.Name}/";
+                                }
+                            }
+                            else
+                            {
+                                routeName = $"{controller.Name.ToLower().Replace("controller", "")}/";
+                            }
+
                             var methods = controller.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                                 .Where(method => typeof(Task<IActionResult>).IsAssignableFrom(method.ReturnType) ||
                                     typeof(IActionResult).IsAssignableFrom(method.ReturnType));
@@ -91,39 +112,67 @@ namespace SiteMaps.NET
                                 // What happens when we have an Area?
                                 attribute = Attribute.GetCustomAttribute(method, typeof(NoSiteMap));
 
-                                var containsRecord = root.Elements()
-                                    .Nodes()
-                                    .Select(s => s.ToString())
-                                    .Contains(Uri.EscapeUriString($"{baseUrl}/{controller.Name.ToLower().Replace("controller", "")}/{method.Name.ToLower()}"));
-
-                                if (!containsRecord &&
-                                    attribute == null)
+                                if (attribute == null)
                                 {
-                                    urlElement = new XElement(xmlns + "url",
-                                        new XElement(xmlns + "loc", Uri.EscapeUriString($"{baseUrl}/{controller.Name.ToLower().Replace("controller", "")}/{method.Name.ToLower()}")),
-                                            new XElement(xmlns + "lastmod", DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:sszzz")));
-                                    root.Add(urlElement);
-                                }
+                                    var methodRoute = (RouteAttribute)Attribute.GetCustomAttribute(method, typeof(RouteAttribute));
 
-                                var details = await GetDetailRecordNodes(controller.Name, method.Name);
+                                    var methodRouteName = string.Empty;
 
-                                if (details.Length > 0)
-                                {
-                                    foreach (var detail in details)
+                                    if (methodRoute != null)
                                     {
-                                        urlElement = new XElement(
-                                            xmlns + "url",
-                                            new XElement(xmlns + "loc", Uri.EscapeUriString(detail.Url)),
-                                            detail.LastModified == null ? null : new XElement(
-                                                xmlns + "lastmod",
-                                                detail.LastModified.Value.ToLocalTime().ToString("yyyy-MM-ddTHH:mm:sszzz")),
-                                            detail.Frequency == null ? null : new XElement(
-                                                xmlns + "changefreq",
-                                                detail.Frequency.Value.ToString().ToLowerInvariant()),
-                                            detail.Priority == null ? null : new XElement(
-                                                xmlns + "priority",
-                                                detail.Priority.Value.ToString("F1", CultureInfo.InvariantCulture)));
+                                        if (!string.IsNullOrWhiteSpace(methodRoute.Template))
+                                        {
+                                            methodRouteName = $"{methodRoute.Template}";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        methodRouteName = method.Name.ToLower();
+                                    }
+
+                                    var containsRecord = root.Elements()
+                                        .Nodes()
+                                        .Select(s => s.ToString())
+                                        .Contains(Uri.EscapeUriString($"{baseUrl}/{routeName}{methodRouteName}"));
+
+                                    if (!containsRecord)
+                                    {
+                                        var priority = (Priority)Attribute.GetCustomAttribute(method, typeof(Priority));
+
+                                        var priorityValue = 1.0f;
+
+                                        if (priority != null)
+                                        {
+                                            priorityValue = priority.Value;
+                                        }
+
+                                        urlElement = new XElement(xmlns + "url",
+                                            new XElement(xmlns + "loc", Uri.EscapeUriString($"{baseUrl}/{routeName}{methodRouteName}")),
+                                                new XElement(xmlns + "lastmod", DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:sszzz")),
+                                                new XElement(xmlns + "priority", priorityValue));
                                         root.Add(urlElement);
+                                    }
+
+                                    var details = GetDetailRecordNodes(controller.Name, method.Name);
+
+                                    if (details.Length > 0)
+                                    {
+                                        foreach (var detail in details)
+                                        {
+                                            urlElement = new XElement(
+                                                xmlns + "url",
+                                                new XElement(xmlns + "loc", Uri.EscapeUriString(detail.Url)),
+                                                detail.LastModified == null ? null : new XElement(
+                                                    xmlns + "lastmod",
+                                                    detail.LastModified.Value.ToLocalTime().ToString("yyyy-MM-ddTHH:mm:sszzz")),
+                                                detail.Frequency == null ? null : new XElement(
+                                                    xmlns + "changefreq",
+                                                    detail.Frequency.Value.ToString().ToLowerInvariant()),
+                                                detail.Priority == null ? null : new XElement(
+                                                    xmlns + "priority",
+                                                    detail.Priority.Value.ToString("F1", CultureInfo.InvariantCulture)));
+                                            root.Add(urlElement);
+                                        }
                                     }
                                 }
                             }
@@ -146,14 +195,13 @@ namespace SiteMaps.NET
             await _next.Invoke(context);
         }
 
-        protected virtual Task<SiteMapNode[]> GetSiteMapNodes()
+        private SiteMapNodeDetail[] GetDetailRecordNodes(string controllerName, string methodName)
         {
-            return Task.FromResult(new SiteMapNode[0]);
-        }
-
-        protected virtual Task<SiteMapNode[]> GetDetailRecordNodes(string controllerName, string methodName)
-        {
-            return Task.FromResult(new SiteMapNode[0]);
+            return _detailNodes
+                .Where(s =>
+                    s.Controller.ToLower().Trim() == controllerName &&
+                    s.Method.ToLower().Trim() == methodName)
+                .ToArray();
         }
     }
 }
