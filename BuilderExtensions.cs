@@ -13,6 +13,11 @@ namespace SiteMaps.NET
                 siteMapNodes = new SiteMapNode[0];
             }
 
+            if (detailNodes == null)
+            {
+                detailNodes = new SiteMapNodeDetail[0];
+            }
+
             return app.UseMiddleware<SiteMapsMiddleware>(parseControllers, isSSL, siteMapNodes, detailNodes, basePath);
         }
 
