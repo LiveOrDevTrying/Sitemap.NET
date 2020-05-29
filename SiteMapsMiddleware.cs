@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SiteMaps.NET.Attributes;
 using SiteMaps.NET.Models;
@@ -84,6 +85,7 @@ namespace SiteMaps.NET
                     foreach (var controller in controllers)
                     {
                         var attribute = Attribute.GetCustomAttribute(controller, typeof(NoSiteMap));
+                        var isAuthRequired = Attribute.GetCustomAttribute(controller, typeof(AuthorizeAttribute)) != null;
 
                         if (attribute == null)
                         {
@@ -105,14 +107,25 @@ namespace SiteMaps.NET
 
                             var methods = controller.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                                 .Where(method => typeof(Task<IActionResult>).IsAssignableFrom(method.ReturnType) ||
-                                    typeof(IActionResult).IsAssignableFrom(method.ReturnType));
+                                    typeof(IActionResult).IsAssignableFrom(method.ReturnType) ||
+                                    typeof(Task<PartialViewResult>).IsAssignableFrom(method.ReturnType) ||
+                                    typeof(PartialViewResult).IsAssignableFrom(method.ReturnType));
 
                             foreach (var method in methods)
                             {
                                 // What happens when we have an Area?
                                 attribute = Attribute.GetCustomAttribute(method, typeof(NoSiteMap));
+                                var authorizeAttribute = Attribute.GetCustomAttribute(method, typeof(AuthorizeAttribute));
+                                var allowAnonymouseAttribute = Attribute.GetCustomAttribute(method, typeof(AllowAnonymousAttribute));
+                                var httpPostAttribute = Attribute.GetCustomAttribute(method, typeof(HttpPostAttribute));
+                                var httpPutAttribute = Attribute.GetCustomAttribute(method, typeof(HttpPutAttribute));
+                                var httpDeleteAttribute = Attribute.GetCustomAttribute(method, typeof(HttpDeleteAttribute));
 
-                                if (attribute == null)
+                                if (authorizeAttribute == null &&
+                                    (!isAuthRequired || allowAnonymouseAttribute != null) &&
+                                    httpPostAttribute == null &&
+                                    httpPutAttribute == null &&
+                                    httpDeleteAttribute == null)
                                 {
                                     var methodRoute = (RouteAttribute)Attribute.GetCustomAttribute(method, typeof(RouteAttribute));
 
@@ -130,27 +143,30 @@ namespace SiteMaps.NET
                                         methodRouteName = method.Name.ToLower();
                                     }
 
-                                    var containsRecord = root.Elements()
-                                        .Nodes()
-                                        .Select(s => s.ToString())
-                                        .Contains(Uri.EscapeUriString($"{baseUrl}/{routeName}{methodRouteName}"));
-
-                                    if (!containsRecord)
+                                    if (attribute == null)
                                     {
-                                        var priority = (Priority)Attribute.GetCustomAttribute(method, typeof(Priority));
+                                        var containsRecord = root.Elements()
+                                            .Nodes()
+                                            .Select(s => s.ToString())
+                                            .Contains(Uri.EscapeUriString($"{baseUrl}/{routeName}{methodRouteName}"));
 
-                                        var priorityValue = 1.0f;
-
-                                        if (priority != null)
+                                        if (!containsRecord)
                                         {
-                                            priorityValue = priority.Value;
-                                        }
+                                            var priority = (Priority)Attribute.GetCustomAttribute(method, typeof(Priority));
 
-                                        urlElement = new XElement(xmlns + "url",
-                                            new XElement(xmlns + "loc", Uri.EscapeUriString($"{baseUrl}/{routeName}{methodRouteName}")),
-                                                new XElement(xmlns + "lastmod", DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:sszzz")),
-                                                new XElement(xmlns + "priority", priorityValue));
-                                        root.Add(urlElement);
+                                            var priorityValue = 1.0f;
+
+                                            if (priority != null)
+                                            {
+                                                priorityValue = priority.Value;
+                                            }
+
+                                            urlElement = new XElement(xmlns + "url",
+                                                new XElement(xmlns + "loc", Uri.EscapeUriString($"{baseUrl}/{routeName}{methodRouteName}")),
+                                                    new XElement(xmlns + "lastmod", DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:sszzz")),
+                                                    new XElement(xmlns + "priority", priorityValue));
+                                            root.Add(urlElement);
+                                        }
                                     }
 
                                     var details = GetDetailRecordNodes(controller.Name, method.Name);
@@ -161,7 +177,7 @@ namespace SiteMaps.NET
                                         {
                                             urlElement = new XElement(
                                                 xmlns + "url",
-                                                new XElement(xmlns + "loc", Uri.EscapeUriString(detail.Url)),
+                                                new XElement(xmlns + "loc", Uri.EscapeUriString($"{baseUrl}/{routeName}{methodRouteName}/{detail.Route}")),
                                                 detail.LastModified == null ? null : new XElement(
                                                     xmlns + "lastmod",
                                                     detail.LastModified.Value.ToLocalTime().ToString("yyyy-MM-ddTHH:mm:sszzz")),
@@ -199,8 +215,8 @@ namespace SiteMaps.NET
         {
             return _detailNodes
                 .Where(s =>
-                    s.Controller.ToLower().Trim() == controllerName &&
-                    s.Method.ToLower().Trim() == methodName)
+                    s.Controller.ToLower().Trim() == controllerName.ToLower().Trim() &&
+                    s.Method.ToLower().Trim() == methodName.ToLower().Trim())
                 .ToArray();
         }
     }
