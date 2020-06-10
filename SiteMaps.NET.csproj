@@ -14,7 +14,7 @@
     <PackageProjectUrl>https://github.com/liveorDevTrying/sitemaps.net</PackageProjectUrl>
     <RepositoryType>Public Github</RepositoryType>
     <ApplicationIcon></ApplicationIcon>
-    <Version>2.1.0</Version>
+    <Version>2.1.1</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
