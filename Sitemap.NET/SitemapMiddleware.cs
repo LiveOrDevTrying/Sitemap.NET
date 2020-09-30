@@ -14,16 +14,16 @@ using System.Xml.Linq;
 
 namespace SiteMaps.NET
 {
-    public class SiteMapsMiddleware
+    public class SitemapMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly bool _parseControllers;
         private readonly bool _isSSL;
-        private readonly SiteMapNode[] _siteMapNodes;
-        private readonly SiteMapNodeDetail[] _detailNodes;
+        private readonly SitemapNode[] _siteMapNodes;
+        private readonly SitemapNodeDetail[] _detailNodes;
         private readonly string _basePath;
 
-        public SiteMapsMiddleware(RequestDelegate next, bool parseControllers, bool isSSL, SiteMapNode[] siteMapNodes, SiteMapNodeDetail[] detailNodes, string basePath)
+        public SitemapMiddleware(RequestDelegate next, bool parseControllers, bool isSSL, SitemapNode[] siteMapNodes, SitemapNodeDetail[] detailNodes, string basePath)
         {
             _next = next;
             _parseControllers = parseControllers;
@@ -84,7 +84,7 @@ namespace SiteMaps.NET
 
                     foreach (var controller in controllers)
                     {
-                        var attribute = Attribute.GetCustomAttribute(controller, typeof(NoSiteMap));
+                        var attribute = Attribute.GetCustomAttribute(controller, typeof(NoSitemap));
                         var isAuthRequired = Attribute.GetCustomAttribute(controller, typeof(AuthorizeAttribute)) != null;
 
                         if (attribute == null)
@@ -114,7 +114,7 @@ namespace SiteMaps.NET
                             foreach (var method in methods)
                             {
                                 // What happens when we have an Area?
-                                attribute = Attribute.GetCustomAttribute(method, typeof(NoSiteMap));
+                                attribute = Attribute.GetCustomAttribute(method, typeof(NoSitemap));
                                 var authorizeAttribute = Attribute.GetCustomAttribute(method, typeof(AuthorizeAttribute));
                                 var allowAnonymouseAttribute = Attribute.GetCustomAttribute(method, typeof(AllowAnonymousAttribute));
                                 var httpPostAttribute = Attribute.GetCustomAttribute(method, typeof(HttpPostAttribute));
@@ -211,7 +211,7 @@ namespace SiteMaps.NET
             await _next.Invoke(context);
         }
 
-        private SiteMapNodeDetail[] GetDetailRecordNodes(string controllerName, string methodName)
+        private SitemapNodeDetail[] GetDetailRecordNodes(string controllerName, string methodName)
         {
             return _detailNodes
                 .Where(s =>

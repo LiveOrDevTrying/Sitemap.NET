@@ -1,36 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <ApplicationIcon>Logo.ico</ApplicationIcon>
     <Authors>Rob Engel - LiveOrDevTrying</Authors>
     <Company>Rob Engel - LiveOrDevTrying - Pixel Horror Studios</Company>
+    <RepositoryUrl>https://github.com/liveorDevTrying/sitemap.net</RepositoryUrl>
+    <PackageIcon>Logo.png</PackageIcon>
+    <RepositoryType>GitHub</RepositoryType>
     <Description>A simple middleware built on reflection designed to support your Search Engine Optimized (SEO) app by dynamically creating a Sitemap.xml and Robots.txt. This package is designed to be very simple for simple use cases but allows for custom disallowed routes, user agents, and custom node endpoints by supplying optional parameters to the middleware extension methods. Sitemaps.xml asks if you would like to parse the controllers - you can add the [NoSiteMap] attribute to any class or method you would not like included in the Sitemap.xml and the [Priority] attribute to set custom priorities per route. You can provide detail routing information for a dynamic sitemap.xml of items, e.g. a link for each product in the products database. The Robots middleware will allow you to add any number of RobotRules for defining your User-Agent and Disallowed routes. This middleware parses the existing controller structure and automatically includes all get endpoints in the dynamic Sitemap.xml while ignoring any Posts, Puts, or Deletes.</Description>
+    <PackageTags>sitemap sitemap.xml sitemaps robots robot robots.txt SEO search engine optimization asp.net standard middleware pixel horror studios pixelhorrorstudios phs liveordevtrying</PackageTags>
+    <PackageProjectUrl>https://github.com/liveorDevTrying/Sitemap.NET</PackageProjectUrl>
     <Copyright>Copyright 2020</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageIcon>Logo.png</PackageIcon>
-    <PackageIconUrl />
-    <PackageTags>sitemap sitemap.xml sitemaps robots robot robots.txt SEO search engine optimization</PackageTags>
-    <RepositoryUrl>https://github.com/liveorDevTrying/sitemaps.net</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/liveorDevTrying/sitemaps.net</PackageProjectUrl>
-    <RepositoryType>Public Github</RepositoryType>
-    <ApplicationIcon></ApplicationIcon>
-    <Version>2.1.1</Version>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.0.4" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Logo.ico">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Logo.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Logo.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
