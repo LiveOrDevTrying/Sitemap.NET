@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SiteMaps.NET.Attributes
+namespace SiteMap.NET.Attributes
 {
     [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
     public class Priority : Attribute

@@ -1,7 +1,7 @@
-﻿using SiteMaps.NET.Enums;
+﻿using SiteMap.NET.Enums;
 using System;
 
-namespace SiteMaps.NET.Models
+namespace SiteMap.NET.Models
 {
     public struct SitemapNodeDetail
     {

@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
-using SiteMaps.NET.Models;
+using SiteMap.NET.Models;
 using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SiteMaps.NET
+namespace SiteMap.NET
 {
     public class RobotsMiddleware
     {
