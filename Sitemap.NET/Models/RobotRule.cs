@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SiteMaps.NET.Models
+namespace SiteMap.NET.Models
 {
     public struct RobotRule
     {

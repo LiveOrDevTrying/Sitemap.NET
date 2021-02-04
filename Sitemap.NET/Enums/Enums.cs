@@ -1,4 +1,4 @@
-﻿namespace SiteMaps.NET.Enums
+﻿namespace SiteMap.NET.Enums
 {
     public enum SiteMapFrequency
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using SiteMaps.NET.Models;
+using SiteMap.NET.Models;
 
-namespace SiteMaps.NET
+namespace SiteMap.NET
 {
     public static class BuilderExtensions
     {

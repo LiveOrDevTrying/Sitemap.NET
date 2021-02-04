@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SiteMaps.NET.Attributes;
-using SiteMaps.NET.Models;
+using SiteMap.NET.Attributes;
+using SiteMap.NET.Models;
 using System;
 using System.Globalization;
 using System.IO;
@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace SiteMaps.NET
+namespace SiteMap.NET
 {
     public class SitemapMiddleware
     {
